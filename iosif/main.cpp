@@ -1,47 +1,50 @@
 #include <iostream>
+#include <fstream>
 #include <ctime>
+#include <iomanip>
 #include "array.h"
 using namespace std;
 
 int josephus(int N, int k)
 {
-    setlocale(LC_ALL, "Russian");
     Array arr(N);
-
-    // заполняем контейнер числами от 1 до N
     for (int i = 1; i <= N; i++)
         arr.insert(i);
+    int pos = 0;
 
-    int pos = 0; // текущая позиция
-
-    // удаляем элементы, пока не останется один
     while (arr.getSize() > 1)
     {
-        // вычисляем позицию удаляемого элемента
         pos = (pos + k - 1) % arr.getSize();
         arr.remove(pos);
     }
 
-    return arr[0]; // возвращаем найденный элемент1
+    return arr[0];
 }
 
 int main()
 {
-    int N, k;
-    cout << "Введите N (количество элементов): ";
-    cin >> N;
-    cout << "Введите k (шаг удаления): ";
-    cin >> k;
+    setlocale(LC_ALL, "Russian");
 
-    // время выполнения
-    clock_t start = clock();
-    int result = josephus(N, k);
-    clock_t end = clock();
+    ofstream file("results.csv");
+    file << "N,k,Result,Time(seconds)" << endl;
 
-    double time = double(end - start) / CLOCKS_PER_SEC;
+    int tests[] = {1000, 5000, 10000, 50000, 100000, 500000, 1000000};
+    int k = 2;
+    for (int N : tests)
+    {
+        clock_t start = clock();
+        int result = josephus(N, k);
+        clock_t end = clock();
 
-    cout << "\nПоследний оставшийся элемент: " << result << endl;
-    cout << "Время расчета: " << time << " сек" << endl;
+        double time = double(end - start) / CLOCKS_PER_SEC;
+
+        file << N << "," << k << "," << result << ","
+             << fixed << setprecision(6) << time << endl;
+
+        cout << "N=" << N << "Результат=" << result
+             << "Время=" << time << " сек" << endl;
+    }
+    file.close();
 
     return 0;
 }
